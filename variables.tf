@@ -1,3 +1,8 @@
+variable "do_token" {
+  description = "DigitalOcean API token with write access"
+  type        = string
+}
+
 variable "cluster_droplet_ids" {
   description = "List of droplet ids"
   type        = list(string)

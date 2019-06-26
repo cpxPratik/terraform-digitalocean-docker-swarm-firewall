@@ -1,3 +1,8 @@
+provider "digitalocean" {
+  token   = var.do_token
+  version = "~> 1.4"
+}
+
 resource "digitalocean_firewall" "swarm-mode-internal-fw" {
   name        = "${var.prefix}-swarm-mode-internal-fw"
   droplet_ids = var.cluster_droplet_ids
