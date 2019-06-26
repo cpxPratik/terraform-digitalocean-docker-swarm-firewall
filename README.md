@@ -2,55 +2,39 @@
 
 Terraform module to configure Docker Swarm mode firewall rules on DigitalOcean. Based on the [Docker documentation](https://docs.docker.com/engine/swarm/swarm-tutorial/#open-protocols-and-ports-between-the-hosts). This module provides a basic set of rules for cluster communications.
 
-[![CircleCI](https://circleci.com/gh/thojkooi/terraform-digitalocean-docker-swarm-firewall/tree/master.svg?style=svg)](https://circleci.com/gh/thojkooi/terraform-digitalocean-docker-swarm-firewall/tree/master)
+[![CircleCI](https://circleci.com/gh/cpxPratik/terraform-digitalocean-docker-swarm-firewall/tree/master.svg?style=svg)](https://circleci.com/gh/cpxPratik/terraform-digitalocean-docker-swarm-firewall/tree/master)
+
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Firewall rules](#firewall-rules)
 
 ---
 
 ## Requirements
 
-- [Terraform](https://www.terraform.io/)
+- [Terraform](https://www.terraform.io/) >= v0.12.0
 - [Digitalocean account / API token with write access](https://www.digitalocean.com/docs/api/create-personal-access-token/)
 
 ## Usage
 
 ```hcl
 provider "digitalocean" {
+    token = var.do_token
+    version = "~> 1.4"
 }
 
 resource "digitalocean_tag" "cluster" {
     name = "swarm-mode-cluster"
 }
 
-resource "digitalocean_tag" "manager" {
-    name = "manager"
-}
-
-resource "digitalocean_tag" "worker" {
-    name = "worker"
-}
-
-module "swarm-mode-cluster" {
-    source            = "github.com/thojkooi/terraform-digitalocean-docker-swarm-mode"
-    total_managers    = 3
-    total_workers     = 5
-    domain            = "do.example.com"
-    do_token          = "${var.do_token}"
-    manager_ssh_keys  = "${var.ssh_keys}"
-    worker_ssh_keys   = "${var.ssh_keys}"
-    manager_tags      = ["${digitalocean_tag.cluster.id}", "${digitalocean_tag.manager.id}"]
-    worker_tags       = ["${digitalocean_tag.cluster.id}", "${digitalocean_tag.worker.id}"]
-}
-
 module "swarm-mode-firewall" {
-    source  = "thojkooi/docker-swarm-firewall/digitalocean"
-    version = "1.0.0"
+    source  = "github.com/cpxPratik/terraform-digitalocean-docker-swarm-firewall?ref=master"
+    do_token = var.do_token
 
     prefix                     = "my-project"
-    cluster_tags               = ["${digitalocean_tag.cluster.id}"]
+    cluster_tags               = [digitalocean_tag.cluster.id]
 }
 ```
-
-See [examples](https://github.com/thojkooi/terraform-digitalocean-docker-swarm-firewall/tree/master/examples) for more.
 
 ## Firewall rules
 
@@ -69,7 +53,7 @@ Port       | Description                       | Source
 
 Please note that previous versions of this module also added rules for SSH access and various outbound rules. These have been removed from this module. Simliar functionality is provided by the following modules:
 
-- [DigitalOcean firewall rules set](https://github.com/thojkooi/terraform-digitalocean-firewall-rules), provides SSH inbound/outbound and various outbound rules.
+- [DigitalOcean firewall rules set](https://github.com/cpxPratik/terraform-digitalocean-firewall-rules), provides SSH inbound/outbound and various outbound rules.
 - [DigitalOcean Remote Docker API access](https://github.com/thojkooi/terraform-digitalocean-firewall-docker-api).
 
 ## License
